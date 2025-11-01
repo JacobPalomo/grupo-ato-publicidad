@@ -46,14 +46,17 @@ async function getGlobal(slug: Global, depth = 0) {
       const defaultData = getDefaultGlobalData(slug)
 
       if (defaultData) {
-        const created = await payload.updateGlobal({
+        // Manually seed the global when it doesn't exist yet
+        await payload.updateGlobal({
           slug,
           depth,
           data: defaultData,
-          upsert: true,
         })
 
-        return created
+        return payload.findGlobal({
+          slug,
+          depth,
+        })
       }
 
       return null

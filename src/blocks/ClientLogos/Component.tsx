@@ -12,12 +12,19 @@ const speedToDuration: Record<NonNullable<ClientLogosBlock['speed']>, number> = 
   fast: 16,
 }
 
-export const ClientLogos: React.FC<ClientLogosBlock> = ({ logos, height = 56, speed = 'medium' }) => {
+const isValidSpeed = (
+  value: ClientLogosBlock['speed'],
+): value is keyof typeof speedToDuration => {
+  return typeof value === 'string' && value in speedToDuration
+}
+
+export const ClientLogos: React.FC<ClientLogosBlock> = ({ logos, height = 56, speed }) => {
   const validLogos = useMemo(() => {
     return (logos || []).filter((logo) => logo?.media && typeof logo.media === 'object')
   }, [logos])
 
-  const marqueeDuration = speedToDuration[speed] || speedToDuration.medium
+  const normalizedSpeed = isValidSpeed(speed) ? speed : 'medium'
+  const marqueeDuration = speedToDuration[normalizedSpeed]
 
   if (validLogos.length === 0) return null
 
