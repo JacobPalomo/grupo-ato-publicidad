@@ -1,34 +1,42 @@
 import { getCachedGlobal } from '@/utilities/getGlobals'
-import Link from 'next/link'
-import React from 'react'
 
 import type { Footer } from '@/payload-types'
 
-import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
-import { CMSLink } from '@/components/Link'
-import { Logo } from '@/components/Logo/Logo'
+import type { FooterContentProps } from './Content.client'
+import { FooterContent } from './Content.client'
+
+const sanitizeMapEmbed = (embed?: string | null) => {
+  if (!embed) return null
+
+  let sanitized = embed
+    .replace(/width="[^"]*"/gi, 'width="100%"')
+    .replace(/height="[^"]*"/gi, 'height="100%"')
+
+  if (/style="[^"]*"/i.test(sanitized)) {
+    sanitized = sanitized.replace(
+      /style="([^"]*)"/i,
+      (_match, styles) => `style="${styles};width:100%;height:100%;border:0;"`,
+    )
+  } else {
+    sanitized = sanitized.replace(/<iframe/i, '<iframe style="width:100%;height:100%;border:0;"')
+  }
+
+  return sanitized
+}
+
+type ExtendedFooter = FooterContentProps['data']
 
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  const footerData = (await getCachedGlobal('footer', 1)()) as Footer | null
 
-  const navItems = footerData?.navItems || []
+  if (!footerData) return null
 
-  return (
-    <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">
-      <div className="container py-8 gap-8 flex flex-col md:flex-row md:justify-between">
-        <Link className="flex items-center" href="/">
-          <Logo />
-        </Link>
+  const extended = footerData as ExtendedFooter
 
-        <div className="flex flex-col-reverse items-start md:flex-row gap-4 md:items-center">
-          <ThemeSelector />
-          <nav className="flex flex-col md:flex-row gap-4">
-            {navItems.map(({ link }, i) => {
-              return <CMSLink className="text-white" key={i} {...link} />
-            })}
-          </nav>
-        </div>
-      </div>
-    </footer>
-  )
+  const sanitizedData: ExtendedFooter = {
+    ...extended,
+    mapEmbed: sanitizeMapEmbed(extended.mapEmbed),
+  }
+
+  return <FooterContent data={sanitizedData} />
 }

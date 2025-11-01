@@ -17,8 +17,39 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const smtpHost = process.env.SMTP_HOST
+const smtpUser = process.env.SMTP_USER
+const smtpPass = process.env.SMTP_PASS
+const smtpPort = process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : undefined
+const smtpSecure =
+  process.env.SMTP_SECURE === 'true'
+    ? true
+    : process.env.SMTP_SECURE === 'false'
+      ? false
+      : process.env.SMTP_PORT === '465'
+
+const emailAdapter =
+  smtpHost && smtpUser && smtpPass
+    ? await nodemailerAdapter({
+        defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'formulario@grupoatopublicidad.com',
+        defaultFromName: process.env.SMTP_FROM_NAME || 'Formulario Grupo ATO Publicidad',
+        skipVerify: process.env.SMTP_SKIP_VERIFY === 'true',
+        transportOptions: {
+          host: smtpHost,
+          port: smtpPort,
+          secure: smtpSecure,
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        },
+      })
+    : undefined
 
 export default buildConfig({
   admin: {
@@ -29,6 +60,10 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      graphics: {
+        Icon: '@/components/Admin/BrandIcon',
+        Logo: '@/components/Admin/BrandLogo',
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -91,4 +126,5 @@ export default buildConfig({
     },
     tasks: [],
   },
+  email: emailAdapter,
 })

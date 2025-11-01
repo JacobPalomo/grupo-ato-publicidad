@@ -13,6 +13,7 @@ import type { Theme } from './types'
 
 import { useTheme } from '..'
 import { themeLocalStorageKey } from './types'
+import { FaPalette } from 'react-icons/fa'
 
 export const ThemeSelector: React.FC = () => {
   const { setTheme } = useTheme()
@@ -37,14 +38,15 @@ export const ThemeSelector: React.FC = () => {
     <Select onValueChange={onThemeChange} value={value}>
       <SelectTrigger
         aria-label="Select a theme"
-        className="w-auto bg-transparent gap-2 pl-0 md:pl-3 border-none"
+        className="flex h-9 min-w-[9rem] items-center gap-2 rounded-full border border-border/50 bg-background/80 px-4 text-xs font-semibold uppercase tracking-[0.35em] text-foreground/80 transition-colors hover:text-foreground"
       >
-        <SelectValue placeholder="Theme" />
+        <FaPalette className="h-4 w-4 text-foreground" strokeWidth={1.5} />
+        <SelectValue placeholder="Tema" />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="auto">Auto</SelectItem>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
+        <SelectItem value="auto">Sistema</SelectItem>
+        <SelectItem value="light">Claro</SelectItem>
+        <SelectItem value="dark">Oscuro</SelectItem>
       </SelectContent>
     </Select>
   )

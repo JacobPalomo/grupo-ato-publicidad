@@ -45,18 +45,43 @@ export const seed = async ({
 
   // clear the database
   await Promise.all(
-    globals.map((global) =>
-      payload.updateGlobal({
+    globals.map((global) => {
+      if (global === 'header') {
+        return payload.updateGlobal({
+          slug: global,
+          data: {
+            navItems: [],
+          },
+          depth: 0,
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+
+      if (global === 'footer') {
+        return payload.updateGlobal({
+          slug: global,
+          data: {
+            siteLinks: [],
+            socialLinks: [],
+          },
+          depth: 0,
+          context: {
+            disableRevalidate: true,
+          },
+        })
+      }
+
+      return payload.updateGlobal({
         slug: global,
-        data: {
-          navItems: [],
-        },
+        data: {},
         depth: 0,
         context: {
           disableRevalidate: true,
         },
-      }),
-    ),
+      })
+    }),
   )
 
   await Promise.all(
@@ -241,35 +266,53 @@ export const seed = async ({
           },
         ],
       },
+      context: {
+        disableRevalidate: true,
+      },
     }),
     payload.updateGlobal({
       slug: 'footer',
       data: {
-        navItems: [
+        siteLinks: [
+          {
+            link: {
+              type: 'custom',
+              label: 'Inicio',
+              url: '/',
+              reference: null,
+            },
+          },
+          {
+            link: {
+              type: 'reference',
+              label: 'Servicios',
+              reference: {
+                relationTo: 'pages',
+                value: contactPage.id,
+              },
+              url: null,
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Posts',
+              url: '/posts',
+              reference: null,
+            },
+          },
           {
             link: {
               type: 'custom',
               label: 'Admin',
               url: '/admin',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
+              reference: null,
             },
           },
         ],
+      },
+      context: {
+        disableRevalidate: true,
       },
     }),
   ])
