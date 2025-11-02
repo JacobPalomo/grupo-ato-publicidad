@@ -11,7 +11,7 @@ export const BrandLogo: React.FC = () => {
       decoding="async"
       height={64}
       loading="eager"
-      src="https://www.grupoatopublicidad.com/logo.png"
+      src="https://wdht7gyp1pofr1kv.public.blob.vercel-storage.com/logo.png"
       width={240}
     />
   )

@@ -11,7 +11,7 @@ export const BrandIcon: React.FC = () => {
       decoding="async"
       height={64}
       loading="eager"
-      src="https://www.grupoatopublicidad.com/logo-500x500.png"
+      src="https://wdht7gyp1pofr1kv.public.blob.vercel-storage.com/logo-500x500.png"
       width={64}
     />
   )
