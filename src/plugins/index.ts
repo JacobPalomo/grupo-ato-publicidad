@@ -98,6 +98,5 @@ export const plugins: Plugin[] = [
     collections: {
       media: true,
     },
-    clientUploads: true,
   }),
 ]
