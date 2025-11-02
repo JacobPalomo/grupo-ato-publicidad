@@ -1,5 +1,4 @@
-// storage-adapter-import-placeholder
-import { sqliteAdapter } from '@payloadcms/db-sqlite'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
@@ -51,6 +50,18 @@ const emailAdapter =
       })
     : undefined
 
+const databaseUrl = process.env.DATABASE_URI || process.env.DATABASE_URL
+
+if (!databaseUrl) {
+  throw new Error(
+    'DATABASE_URI (Postgres connection string) is required. Update your environment variables before starting Payload.',
+  )
+}
+
+const shouldUseSSL =
+  process.env.DATABASE_SSL === 'true' ||
+  (process.env.DATABASE_SSL !== 'false' && process.env.VERCEL === '1')
+
 export default buildConfig({
   admin: {
     components: {
@@ -94,10 +105,18 @@ export default buildConfig({
   },
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || '',
+  db: postgresAdapter({
+    pool: {
+      connectionString: databaseUrl,
+      ...(shouldUseSSL
+        ? {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          }
+        : {}),
     },
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
   collections: [Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
