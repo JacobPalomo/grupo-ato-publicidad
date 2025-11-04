@@ -245,6 +245,13 @@ export const GalleryBlock: React.FC<GalleryBlockProps> = ({
                   imgClassName="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                   pictureClassName="block h-full w-full"
                   resource={item.media}
+                  videoClassName="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  videoProps={{
+                    autoPlay: true,
+                    loop: true,
+                    muted: true,
+                    playsInline: true,
+                  }}
                 />
 
                 {item.description && (
@@ -306,6 +313,15 @@ export const GalleryBlock: React.FC<GalleryBlockProps> = ({
               imgClassName="object-contain"
               pictureClassName="block h-full w-full"
               resource={filteredItems[lightboxIndex].media}
+              videoClassName="h-full w-full object-contain"
+              videoProps={{
+                autoPlay: true,
+                controls: true,
+                controlsList: 'nodownload noplaybackrate',
+                muted: false,
+                playsInline: true,
+                preload: 'auto',
+              }}
             />
           </div>
         </div>
