@@ -123,7 +123,17 @@ export const FooterContent: React.FC<FooterContentProps> = ({ data }) => {
   const privacyLink = data.privacyLink
 
   return (
-    <footer className="mt-auto border-t border-border bg-background text-foreground">
+    <>
+      <a
+        aria-label="Abrir chat de WhatsApp"
+        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#25D366]"
+        href="https://api.whatsapp.com/send?phone=525568055488"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <FaWhatsapp className="h-7 w-7" />
+      </a>
+      <footer className="mt-auto border-t border-border bg-background text-foreground">
       <div className="container space-y-12 py-16">
         {(contactSection?.title || contactSection?.description) && (
           <section className="grid gap-10 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -300,5 +310,6 @@ export const FooterContent: React.FC<FooterContentProps> = ({ data }) => {
         </div>
       </div>
     </footer>
+    </>
   )
 }
