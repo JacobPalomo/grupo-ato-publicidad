@@ -5,7 +5,7 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
-import { ValidationError } from 'payload/errors'
+import { ValidationError } from 'payload'
 import path from 'path'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
@@ -22,19 +22,15 @@ const MAX_IMAGE_DIMENSION = Number(process.env.MEDIA_MAX_IMAGE_DIMENSION ?? 1200
 
 type BeforeChangeHook = NonNullable<NonNullable<CollectionConfig['hooks']>['beforeChange']>[number]
 
-const validateImageDimensions: BeforeChangeHook = async ({
-  data,
-  req,
-}: {
-  data: Record<string, unknown>
-  req: any
-}) => {
+const validateImageDimensions: BeforeChangeHook = async ({ data, req }) => {
   const file = req?.file
-  if (!file?.buffer) return data
+  if (!file) return data
+  const fileBuffer = (file as typeof file & { buffer?: Buffer })?.buffer ?? file?.data
+  if (!fileBuffer) return data
   if (!file.mimetype?.startsWith('image/')) return data
 
   try {
-    const metadata = await sharp(file.buffer, {
+    const metadata = await sharp(fileBuffer, {
       limitInputPixels: MAX_IMAGE_PIXELS,
     }).metadata()
 
