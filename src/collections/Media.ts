@@ -5,7 +5,9 @@ import {
   InlineToolbarFeature,
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
+import { ValidationError } from 'payload/errors'
 import path from 'path'
+import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
@@ -14,6 +16,79 @@ import { authenticated } from '../access/authenticated'
 const usingVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const MAX_IMAGE_PIXELS = Number(process.env.MEDIA_MAX_IMAGE_PIXELS ?? 80_000_000)
+const MAX_IMAGE_DIMENSION = Number(process.env.MEDIA_MAX_IMAGE_DIMENSION ?? 12000)
+
+type BeforeChangeHook = NonNullable<NonNullable<CollectionConfig['hooks']>['beforeChange']>[number]
+
+const validateImageDimensions: BeforeChangeHook = async ({
+  data,
+  req,
+}: {
+  data: Record<string, unknown>
+  req: any
+}) => {
+  const file = req?.file
+  if (!file?.buffer) return data
+  if (!file.mimetype?.startsWith('image/')) return data
+
+  try {
+    const metadata = await sharp(file.buffer, {
+      limitInputPixels: MAX_IMAGE_PIXELS,
+    }).metadata()
+
+    const width = metadata.width ?? 0
+    const height = metadata.height ?? 0
+
+    if (!width || !height) {
+      return data
+    }
+
+    const exceedsPixels = width * height > MAX_IMAGE_PIXELS
+    const exceedsDimension = width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION
+
+    if (exceedsPixels || exceedsDimension) {
+      const dimensionMessage = exceedsPixels
+        ? `La imagen supera el máximo permitido de ${MAX_IMAGE_PIXELS.toLocaleString('es-MX')} pixeles (actual: ${(
+            width * height
+          ).toLocaleString('es-MX')} pixeles).`
+        : `Las dimensiones (${width}x${height}px) superan el máximo permitido de ${MAX_IMAGE_DIMENSION}px por lado.`
+
+      throw new ValidationError({
+        collection: 'media',
+        errors: [
+          {
+            message: dimensionMessage,
+            path: 'file',
+          },
+        ],
+        req,
+      })
+    }
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      throw error
+    }
+
+    if (error instanceof Error && error.message.toLowerCase().includes('exceeds pixel limit')) {
+      throw new ValidationError({
+        collection: 'media',
+        errors: [
+          {
+            message: `La imagen supera el máximo permitido de ${MAX_IMAGE_PIXELS.toLocaleString('es-MX')} pixeles.`,
+            path: 'file',
+          },
+        ],
+        req,
+      })
+    }
+
+    throw error
+  }
+
+  return data
+}
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -49,6 +124,9 @@ export const Media: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    beforeChange: [validateImageDimensions],
+  },
   upload: (() => {
     const baseConfig: NonNullable<CollectionConfig['upload']> = {
       adminThumbnail: 'thumbnail',
