@@ -71,6 +71,7 @@ export interface Config {
     posts: Post;
     media: Media;
     categories: Category;
+    'gallery-tags': GalleryTag;
     users: User;
     redirects: Redirect;
     forms: Form;
@@ -87,6 +88,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'gallery-tags': GalleryTagsSelect<false> | GalleryTagsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -290,6 +292,10 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Etiqueta cada recurso para reutilizarlo fácilmente en las galerías.
+   */
+  tags?: (number | GalleryTag)[] | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -359,6 +365,16 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-tags".
+ */
+export interface GalleryTag {
+  id: number;
+  title: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -717,26 +733,31 @@ export interface GalleryBlock {
     };
     [k: string]: unknown;
   } | null;
-  items: {
-    media: number | Media;
-    categories: (number | Category)[];
-    description?: {
-      root: {
-        type: string;
-        children: {
-          type: any;
-          version: number;
+  populateBy?: ('manual' | 'media') | null;
+  mediaTags?: (number | GalleryTag)[] | null;
+  mediaLimit?: number | null;
+  items?:
+    | {
+        media: number | Media;
+        tags: (number | GalleryTag)[];
+        description?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
           [k: string]: unknown;
-        }[];
-        direction: ('ltr' | 'rtl') | null;
-        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-        indent: number;
-        version: number;
-      };
-      [k: string]: unknown;
-    } | null;
-    id?: string | null;
-  }[];
+        } | null;
+        id?: string | null;
+      }[]
+    | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'gallery';
@@ -1211,6 +1232,10 @@ export interface PayloadLockedDocument {
         value: number | Category;
       } | null)
     | ({
+        relationTo: 'gallery-tags';
+        value: number | GalleryTag;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -1508,11 +1533,14 @@ export interface GalleryBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   description?: T;
+  populateBy?: T;
+  mediaTags?: T;
+  mediaLimit?: T;
   items?:
     | T
     | {
         media?: T;
-        categories?: T;
+        tags?: T;
         description?: T;
         id?: T;
       };
@@ -1611,6 +1639,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  tags?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1714,6 +1743,15 @@ export interface CategoriesSelect<T extends boolean = true> {
         label?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-tags_select".
+ */
+export interface GalleryTagsSelect<T extends boolean = true> {
+  title?: T;
   updatedAt?: T;
   createdAt?: T;
 }

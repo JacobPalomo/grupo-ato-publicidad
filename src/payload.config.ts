@@ -15,6 +15,7 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { GalleryTags } from './collections/GalleryTags'
 
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 
@@ -32,12 +33,15 @@ const smtpSecure =
       ? false
       : process.env.SMTP_PORT === '465'
 
+const shouldSkipEmailVerification =
+  process.env.SMTP_SKIP_VERIFY === 'true' || typeof process.env.SMTP_SKIP_VERIFY === 'undefined'
+
 const emailAdapter =
   smtpHost && smtpUser && smtpPass
     ? await nodemailerAdapter({
         defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'formulario@grupoatopublicidad.com',
         defaultFromName: process.env.SMTP_FROM_NAME || 'Formulario Grupo ATO Publicidad',
-        skipVerify: process.env.SMTP_SKIP_VERIFY === 'true',
+        skipVerify: shouldSkipEmailVerification,
         transportOptions: {
           host: smtpHost,
           port: smtpPort,
@@ -124,7 +128,7 @@ export default buildConfig({
     },
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, GalleryTags, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [

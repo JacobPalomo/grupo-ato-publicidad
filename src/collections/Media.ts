@@ -38,6 +38,16 @@ export const Media: CollectionConfig = {
         },
       }),
     },
+    {
+      name: 'tags',
+      type: 'relationship',
+      relationTo: 'gallery-tags',
+      hasMany: true,
+      label: 'Etiquetas',
+      admin: {
+        description: 'Etiqueta cada recurso para reutilizarlo fácilmente en las galerías.',
+      },
+    },
   ],
   upload: (() => {
     const baseConfig: NonNullable<CollectionConfig['upload']> = {

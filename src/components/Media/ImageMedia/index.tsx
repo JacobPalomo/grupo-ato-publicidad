@@ -56,6 +56,9 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .map(([, value]) => `(max-width: ${value}px) ${value * 2}w`)
         .join(', ')
 
+  const shouldBypassOptimization =
+    typeof src === 'string' && src.includes('/api/media/')
+
   return (
     <picture className={cn(pictureClassName)}>
       <NextImage
@@ -71,6 +74,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         sizes={sizes}
         src={src}
         width={!fill ? width : undefined}
+        unoptimized={shouldBypassOptimization}
       />
     </picture>
   )

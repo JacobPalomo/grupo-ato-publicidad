@@ -53,13 +53,56 @@ export const GalleryBlock: Block = {
       }),
     },
     {
+      name: 'populateBy',
+      type: 'select',
+      label: 'Fuente de trabajos',
+      defaultValue: 'manual',
+      options: [
+        {
+          label: 'Seleccionar manualmente',
+          value: 'manual',
+        },
+        {
+          label: 'Automático desde la biblioteca',
+          value: 'media',
+        },
+      ],
+    },
+    {
+      name: 'mediaTags',
+      type: 'relationship',
+      relationTo: 'gallery-tags',
+      hasMany: true,
+      label: 'Etiquetas a mostrar',
+      admin: {
+        condition: (_, siblingData) => siblingData.populateBy === 'media',
+      },
+    },
+    {
+      name: 'mediaLimit',
+      type: 'number',
+      label: 'Límite de trabajos',
+      defaultValue: 24,
+      admin: {
+        condition: (_, siblingData) => siblingData.populateBy === 'media',
+        step: 1,
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       label: 'Trabajos',
-      minRows: 1,
-      required: true,
+      minRows: 0,
       admin: {
+        condition: (_, siblingData) => siblingData.populateBy !== 'media',
         initCollapsed: true,
+      },
+      required: false,
+      validate: (value, { siblingData }) => {
+        const populateBy = (siblingData as { populateBy?: string })?.populateBy
+        if (populateBy === 'media') return true
+        if (Array.isArray(value) && value.length > 0) return true
+        return 'Agrega al menos un trabajo o usa la carga automática.'
       },
       labels: {
         singular: 'Trabajo',
@@ -74,11 +117,11 @@ export const GalleryBlock: Block = {
           label: 'Imagen',
         },
         {
-          name: 'categories',
+          name: 'tags',
           type: 'relationship',
-          relationTo: 'categories',
+          relationTo: 'gallery-tags',
           hasMany: true,
-          label: 'Categorías',
+          label: 'Etiquetas',
           required: true,
         },
         {

@@ -22,7 +22,6 @@ export const Logo = (props: Props) => {
   const resolvedTheme = theme ?? undefined
 
   const sharedImageProps = {
-    alt: 'Grupo ATO Publicidad',
     decoding: 'async' as const,
     fetchPriority: priority,
     height: 34,
@@ -35,6 +34,7 @@ export const Logo = (props: Props) => {
     <span className="inline-flex items-center">
       <img
         {...sharedImageProps}
+        alt="Grupo ATO Publicidad"
         className={clsx(
           baseClassName,
           'block filter dark:hidden',
@@ -51,6 +51,7 @@ export const Logo = (props: Props) => {
       />
       <img
         {...sharedImageProps}
+        alt="Grupo ATO Publicidad"
         className={clsx(
           baseClassName,
           'hidden filter dark:block',
