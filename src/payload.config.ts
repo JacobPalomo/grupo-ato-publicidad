@@ -20,7 +20,11 @@ import { GalleryTags } from './collections/GalleryTags'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 
 const defaultSharpPixelLimit = Number(process.env.SHARP_LIMIT_INPUT_PIXELS ?? 80_000_000)
-if (Number.isFinite(defaultSharpPixelLimit) && defaultSharpPixelLimit > 0) {
+if (
+  Number.isFinite(defaultSharpPixelLimit) &&
+  defaultSharpPixelLimit > 0 &&
+  typeof sharp.limitInputPixels === 'function'
+) {
   sharp.limitInputPixels(defaultSharpPixelLimit)
 }
 
