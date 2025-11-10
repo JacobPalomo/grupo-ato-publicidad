@@ -20,12 +20,15 @@ import { GalleryTags } from './collections/GalleryTags'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 
 const defaultSharpPixelLimit = Number(process.env.SHARP_LIMIT_INPUT_PIXELS ?? 80_000_000)
+const sharpWithLimit = sharp as typeof sharp & {
+  limitInputPixels?: (maxPixels: number) => void
+}
 if (
   Number.isFinite(defaultSharpPixelLimit) &&
   defaultSharpPixelLimit > 0 &&
-  typeof sharp.limitInputPixels === 'function'
+  typeof sharpWithLimit.limitInputPixels === 'function'
 ) {
-  sharp.limitInputPixels(defaultSharpPixelLimit)
+  sharpWithLimit.limitInputPixels(defaultSharpPixelLimit)
 }
 
 const filename = fileURLToPath(import.meta.url)
